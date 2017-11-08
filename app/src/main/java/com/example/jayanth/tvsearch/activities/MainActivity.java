@@ -51,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         apiInterface = ApiClient.getRetrofit().create(ApiInterface.class);
-        loadData("One Piece");
-        loadData("man");
+        loadData("One");
+//        loadData("man");
 
         searchEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 movieInfo = response.body();
                 Log.v("movieInfo", response.body().getTotalResults().toString());
                 if (movieInfo != null) {
-                    recycleAdapter = new ListAdapter(movieInfo);
+                    recycleAdapter = new ListAdapter(movieInfo,getApplicationContext());
                     recyclerView.setAdapter(recycleAdapter);
                 }
             }
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         String query=searchEditText.getText().toString().trim();
         if(query.equals(""))
         {
-            Toast.makeText(getApplicationContext(),"Search can't be empty",Toast.LENGTH_SHORT).show();
+            Toast.makeText(view.getContext(),"Search can't be empty",Toast.LENGTH_SHORT).show();
         }
         else
         {

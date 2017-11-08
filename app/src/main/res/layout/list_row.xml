@@ -3,22 +3,37 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:Tools="http://schemas.android.com/tools"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="16dp">
+<FrameLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
-    <android.support.v7.widget.AppCompatImageView
+    <ImageView
         android:id="@+id/row_imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/movie_img" />
-
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        android:src="@mipmap/movie_img"
+        android:background="#ecece8"
+        />
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        android:background="#00000000"
+        android:id="@+id/img_progressBar"/>
+</FrameLayout>
     <TextView
         android:id="@+id/row_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         Tools:text="one Piece"
-        android:textColor="#000"
+        android:textColor="#f3f0f0"
         android:textSize="20sp"
         android:fontFamily="serif-monospace"
+        android:layout_gravity="center"
+        android:padding="16dp"
 
         />
 
