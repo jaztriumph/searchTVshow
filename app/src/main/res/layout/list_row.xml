@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:Tools="http://schemas.android.com/tools"
+    android:orientation="horizontal">
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/row_imageView"
@@ -13,7 +15,11 @@
         android:id="@+id/row_textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        Tools:text="one Piece"
+        android:textColor="#000"
+        android:textSize="20sp"
+        android:fontFamily="serif-monospace"
 
         />
 
-</android.support.v7.widget.LinearLayoutCompat>
+</LinearLayout>
