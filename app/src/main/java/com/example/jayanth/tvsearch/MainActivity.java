@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.jayanth.tvsearch.adapters.ListAdapter;
@@ -33,14 +34,16 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         apiInterface=ApiClient.getRetrofit().create(ApiInterface.class);
-        Call<Movie> call=apiInterface.getMovies("man");
+        Call<Movie> call=apiInterface.getMovies("man",1);
         call.enqueue(new Callback<Movie>() {
             @Override
             public void onResponse(Call<Movie> call, Response<Movie> response) {
                 movieInfo=response.body();
-                recycleAdapter=new ListAdapter(movieInfo);
-                recyclerView.setAdapter(recycleAdapter);
-
+                Log.v("movieInfo",response.body().getTotalResults().toString());
+                if(movieInfo!=null) {
+                    recycleAdapter = new ListAdapter(movieInfo);
+                    recyclerView.setAdapter(recycleAdapter);
+                }
             }
 
             @Override
