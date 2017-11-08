@@ -1,4 +1,4 @@
-package com.example.jayanth.tvsearch;
+package com.example.jayanth.tvsearch.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,10 +8,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.jayanth.tvsearch.R;
+import com.example.jayanth.tvsearch.models.Movie;
+import com.example.jayanth.tvsearch.models.Result;
 
 import java.util.ArrayList;
-
-import com.example.jayanth.tvsearch.models.MovieInfo;
+import java.util.List;
 
 /**
  * Created by jayanth on 07-11-2017.
@@ -19,9 +20,11 @@ import com.example.jayanth.tvsearch.models.MovieInfo;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
 
-
-    ListAdapter(ArrayList<MovieInfo> results) {
-
+    Movie movieInfo=null;
+    List<Result> results=null;
+    public ListAdapter(Movie movieInfo) {
+        this.movieInfo=movieInfo;
+        results=movieInfo.getResults();
     }
 
     @Override
@@ -32,12 +35,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
 
     @Override
     public void onBindViewHolder(ListAdapter.ListViewHolder holder, int position) {
+        holder.rowTextView.setText(results.get(position).getName());
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return results.size();
     }
 
     class ListViewHolder extends RecyclerView.ViewHolder {

@@ -1,4 +1,4 @@
-package com.example.jayanth.tvsearch;
+package com.example.jayanth.tvsearch.networking;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
