@@ -21,6 +21,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.support.v7.widget.SearchView;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
     private ApiInterface apiInterface;
     private LinearLayoutManager layoutManagerDisplay;
     private LinearLayoutManager layoutManagerResult;
+    ProgressBar progressBarDisplay;
+    ProgressBar progressBarResult;
+    FrameLayout frameLayoutResult;
+
 //    private EditText searchEditText;
 //    private Button searchButton;
 
@@ -57,16 +63,19 @@ public class MainActivity extends AppCompatActivity {
 //        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
 //        searchEditText=findViewById(R.id.movie_search);
 //        searchButton=findViewById(R.id.search_button);
-        recyclerViewResult=findViewById(R.id.result_list);
+        frameLayoutResult = findViewById(R.id.result_frame);
+        progressBarDisplay = findViewById(R.id.display_progressbar);
+        progressBarResult = findViewById(R.id.result_progressbar);
+        recyclerViewResult = findViewById(R.id.result_list);
         recyclerViewDisplay = findViewById(R.id.display_list);
         layoutManagerDisplay = new LinearLayoutManager(this);
-        layoutManagerResult=new LinearLayoutManager(this);
+        layoutManagerResult = new LinearLayoutManager(this);
         recyclerViewDisplay.setLayoutManager(layoutManagerDisplay);
         recyclerViewResult.setLayoutManager(layoutManagerResult);
         recyclerViewResult.setHasFixedSize(true);
         recyclerViewDisplay.setHasFixedSize(true);
         apiInterface = ApiClient.getRetrofit().create(ApiInterface.class);
-        loadData("One",recyclerViewDisplay);
+        loadData("One", recyclerViewDisplay);
 //        loadData("man");
 //
 //        searchEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
@@ -92,7 +101,9 @@ public class MainActivity extends AppCompatActivity {
                 movieInfo = response.body();
                 Log.v("movieInfo", response.body().getTotalResults().toString());
                 if (movieInfo != null) {
-                    recycleAdapter = new ListAdapter(movieInfo,getApplicationContext());
+                    progressBarDisplay.setVisibility(View.GONE);
+                    progressBarResult.setVisibility(View.INVISIBLE);
+                    recycleAdapter = new ListAdapter(movieInfo, getApplicationContext());
                     recyclerView.setAdapter(recycleAdapter);
                 }
             }
@@ -105,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public void onClickSearch(View view) {
+    //    public void onClickSearch(View view) {
 //        hideSoftKeyboard();
 //        searchEditText.clearFocus();
 //        String query=searchEditText.getText().toString().trim();
@@ -120,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
     public void hideSoftKeyboard() {
-        if(getCurrentFocus()!=null) {
+        if (getCurrentFocus() != null) {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
@@ -128,27 +139,29 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.search,menu);
-        MenuItem searchItem=menu.findItem(R.id.action_search);
-        final SearchView searchView= (SearchView) searchItem.getActionView();
+        getMenuInflater().inflate(R.menu.search, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) searchItem.getActionView();
 //        SearchManager searchManager=(SearchManager) getSystemService(Context.SEARCH_SERVICE);
 //        ComponentName componentName=new ComponentName(getApplicationContext(),SearchableActivity.class);
 //        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
-                String query=s.trim();
-                if(s.equals(""))
-                {
-                    Toast.makeText(getApplicationContext(),"Search can't be empty",Toast.LENGTH_SHORT).show();
+//                hideSoftKeyboard();
+                searchView.clearFocus();
+                String query = s.trim();
+                if (s.equals("")) {
+                    Toast.makeText(getApplicationContext(), "Search can't be empty", Toast.LENGTH_SHORT).show();
+                } else {
+
+//                    recyclerViewResult.setVisibility(View.VISIBLE);
+                    frameLayoutResult.setVisibility(View.VISIBLE);
+                    progressBarResult.setVisibility(View.VISIBLE);
+                    loadData(query, recyclerViewResult);
                 }
-                else
-                {
-                    loadData(query,recyclerViewResult);
-                    recyclerViewResult.setVisibility(View.VISIBLE);
-                }
-                hideSoftKeyboard();
-               searchView.clearFocus();
+
+
                 return true;
             }
 
@@ -166,7 +179,9 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                recyclerViewResult.setVisibility(View.INVISIBLE);
+                frameLayoutResult.setVisibility(View.INVISIBLE);
+//                recyclerViewResult.setVisibility(View.INVISIBLE);
+
                 return true;
             }
         });
