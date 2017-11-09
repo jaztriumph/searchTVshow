@@ -15,6 +15,8 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
     @GET("/3/search/tv?api_key=876ba1f8052dc2ee75cb845c11e9e531&language=en-US")
+    Call<Movie> getTv(@Query("query") String movie,@Query("page") int page);
+    @GET("/3/search/movie?api_key=876ba1f8052dc2ee75cb845c11e9e531&language=en-US")
     Call<Movie> getMovies(@Query("query") String movie,@Query("page") int page);
 //    &query={movie}&page=1
 }

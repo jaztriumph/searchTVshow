@@ -3,6 +3,7 @@ package com.example.jayanth.tvsearch.activities;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
 import android.graphics.drawable.ColorDrawable;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewDisplay;
     private RecyclerView recyclerViewResult;
     private Movie movieInfo;
+    Movie loadMovie=null;
     private ListAdapter recycleAdapter;
     private ApiInterface apiInterface;
     private LinearLayoutManager layoutManagerDisplay;
@@ -58,11 +60,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        ActionBar bar = getSupportActionBar();
-//        if(bar!=null)
-//        bar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.colorPrimary)));
-//        searchEditText=findViewById(R.id.movie_search);
-//        searchButton=findViewById(R.id.search_button);
         frameLayoutResult = findViewById(R.id.result_frame);
         progressBarDisplay = findViewById(R.id.display_progressbar);
         progressBarResult = findViewById(R.id.result_progressbar);
@@ -75,36 +72,58 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewResult.setHasFixedSize(true);
         recyclerViewDisplay.setHasFixedSize(true);
         apiInterface = ApiClient.getRetrofit().create(ApiInterface.class);
-        loadData("One", recyclerViewDisplay);
-//        loadData("man");
-//
-//        searchEditText.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-//            @Override
-//            public boolean onEditorAction(TextView textView, int actionId, KeyEvent event) {
-//                if((actionId == EditorInfo.IME_ACTION_SEARCH))
-//                {
-//                    searchButton.performClick();
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
+        loadData("One", recyclerViewDisplay,true,1,"movie");
 
-//        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
-    public void loadData(String query, final RecyclerView recyclerView) {
-        Call<Movie> call = apiInterface.getMovies(query, 1);
+    public void loadData(final String query, final RecyclerView recyclerView, final boolean onload, int page, final String type) {
+        Call<Movie> call=null;
+        if(type.equals("tv")) {
+            call = apiInterface.getTv(query, page);
+        }else
+        {
+            call=apiInterface.getTv(query,page);
+        }
         call.enqueue(new Callback<Movie>() {
             @Override
             public void onResponse(Call<Movie> call, Response<Movie> response) {
                 movieInfo = response.body();
-                Log.v("movieInfo", response.body().getTotalResults().toString());
-                if (movieInfo != null) {
-                    progressBarDisplay.setVisibility(View.GONE);
-                    progressBarResult.setVisibility(View.INVISIBLE);
-                    recycleAdapter = new ListAdapter(movieInfo, getApplicationContext());
-                    recyclerView.setAdapter(recycleAdapter);
+                loadMovie=movieInfo;
+                if(onload) {
+                    if (movieInfo != null) {
+                        progressBarDisplay.setVisibility(View.GONE);
+                        progressBarResult.setVisibility(View.INVISIBLE);
+                        recycleAdapter = new ListAdapter(recyclerView, movieInfo, getApplicationContext());
+                        recyclerView.setAdapter(recycleAdapter);
+                        recycleAdapter.setOnLoadMoreListener(new ListAdapter.OnLoadMoreListener() {
+                            @Override
+                            public void onLoadMore() {
+                                recycleAdapter.pageNo++;
+                                if(recycleAdapter.pageNo<recycleAdapter.TOTAL_PAGES) {
+                                    Toast.makeText(getApplicationContext(),String.valueOf(recycleAdapter.pageNo), Toast.LENGTH_SHORT).show();
+
+                                    recycleAdapter.results.add(null);
+                                    recycleAdapter.notifyItemInserted(recycleAdapter.results.size() - 1);
+
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        loadData(query, recyclerView, false,recycleAdapter.pageNo,type);
+                                        recycleAdapter.results.remove(recycleAdapter.results.size() - 1);
+                                        if (loadMovie != null) {
+                                            recycleAdapter.results.addAll(loadMovie.getResults());
+                                            recycleAdapter.notifyDataSetChanged();
+                                            recycleAdapter.setLoaded();
+
+                                        }
+                                    }
+                                },0);
+
+                                }
+
+                            }
+                        });
+                    }
                 }
             }
 
@@ -113,23 +132,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Failure", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
-    //    public void onClickSearch(View view) {
-//        hideSoftKeyboard();
-//        searchEditText.clearFocus();
-//        String query=searchEditText.getText().toString().trim();
-//        if(query.equals(""))
-//        {
-//            Toast.makeText(view.getContext(),"Search can't be empty",Toast.LENGTH_SHORT).show();
-//        }
-//        else
-//        {
-//            loadData(query);
-//        }
-//
-//    }
     public void hideSoftKeyboard() {
         if (getCurrentFocus() != null) {
             InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -158,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
 //                    recyclerViewResult.setVisibility(View.VISIBLE);
                     frameLayoutResult.setVisibility(View.VISIBLE);
                     progressBarResult.setVisibility(View.VISIBLE);
-                    loadData(query, recyclerViewResult);
+                    loadData(query, recyclerViewResult,true,1,"tv");
                 }
 
 

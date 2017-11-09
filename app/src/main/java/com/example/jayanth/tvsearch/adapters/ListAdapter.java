@@ -1,6 +1,8 @@
 package com.example.jayanth.tvsearch.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,49 +29,97 @@ import retrofit2.http.Url;
  * Created by jayanth on 07-11-2017.
  */
 
-public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder> {
+public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     String BASE_IMG_URL = "http://image.tmdb.org/t/p/w185/";
-
+    private final int VIEW_TYPE_ITEM = 0;
+    private final int VIEW_TYPE_LOADING = 1;
+    public int pageNo=1;
+    public final int TOTAL_PAGES;
     String imageUrl;
     Movie movieInfo = null;
-    List<Result> results = null;
+    public List<Result> results = null;
     Context context = null;
+    private OnLoadMoreListener onLoadMoreListener;
+    private boolean isLoading;
+    private int visibleThreshold = 5;
+    private int lastVisibleItem, totalItemCount;
+    private Activity activity;
 
-    public ListAdapter(Movie movieInfo, Context context) {
+    public void setOnLoadMoreListener(OnLoadMoreListener mOnLoadMoreListener) {
+        this.onLoadMoreListener = mOnLoadMoreListener;
+    }
+
+    public interface OnLoadMoreListener {
+        void onLoadMore();
+    }
+
+    public ListAdapter(final RecyclerView recyclerView, Movie movieInfo, Context context) {
         this.movieInfo = movieInfo;
         results = movieInfo.getResults();
+        TOTAL_PAGES=movieInfo.getTotalPages();
         this.context = context;
+        final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                totalItemCount = layoutManager.getItemCount();
+                lastVisibleItem = layoutManager.findLastVisibleItemPosition();
+                if (!isLoading && totalItemCount <= (lastVisibleItem + visibleThreshold)) {
+                    if (onLoadMoreListener != null) {
+                        onLoadMoreListener.onLoadMore();
+                    }
+                    isLoading = true;
+                }
+            }
+        });
     }
 
     @Override
-    public ListAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_row, parent, false);
-        return new ListViewHolder(view);
+    public int getItemViewType(int position) {
+        return results.get(position) == null ? VIEW_TYPE_LOADING : VIEW_TYPE_ITEM;
     }
 
     @Override
-    public void onBindViewHolder(final ListAdapter.ListViewHolder holder, int position) {
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_ITEM) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_row, parent, false);
+            return new ListViewHolder(view);
+        } else if (viewType == VIEW_TYPE_LOADING) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading, parent, false);
+            return new LoadingViewHolder(view);
+        }
+        return null;
+    }
 
-        holder.rowTextView.setText(results.get(position).getName());
-        if (results.get(position).getPosterPath() != null) {
-            imageUrl = BASE_IMG_URL + results.get(position).getPosterPath();
-            Picasso.with(context).load(imageUrl).into(holder.rowImageView, new Callback() {
-                @Override
-                public void onSuccess() {
-                    holder.imgProgressBar.setVisibility(View.INVISIBLE);
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof ListViewHolder) {
+            final ListViewHolder listViewholder=(ListViewHolder)holder;
+            listViewholder.rowTextView.setText(results.get(position).getName());
+            if (results.get(position).getPosterPath() != null) {
+                imageUrl = BASE_IMG_URL + results.get(position).getPosterPath();
+                Picasso.with(context).load(imageUrl).into(listViewholder.rowImageView, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        listViewholder.imgProgressBar.setVisibility(View.INVISIBLE);
 
-                }
+                    }
 
-                @Override
-                public void onError() {
+                    @Override
+                    public void onError() {
 
-                }
-            });
-        } else {
-            holder.rowImageView.setImageResource(R.mipmap.movie_img);
-            holder.imgProgressBar.setVisibility(View.INVISIBLE);
+                    }
+                });
+            } else {
+                listViewholder.rowImageView.setImageResource(R.mipmap.movie_img);
+                listViewholder.imgProgressBar.setVisibility(View.INVISIBLE);
 
 //            Toast.makeText(context,results.get(position).getName(),Toast.LENGTH_SHORT).show();
+            }
+        }else if (holder instanceof LoadingViewHolder) {
+            LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
+            loadingViewHolder.itemLoadingProgressBar.setIndeterminate(true);
         }
 
     }
@@ -77,6 +127,9 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
     @Override
     public int getItemCount() {
         return results.size();
+    }
+    public void setLoaded() {
+        isLoading = false;
     }
 
     class ListViewHolder extends RecyclerView.ViewHolder {
@@ -91,6 +144,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListViewHolder
             rowImageView = itemView.findViewById(R.id.row_imageView);
             imgProgressBar = itemView.findViewById(R.id.img_progressBar);
 //            imgProgressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    class LoadingViewHolder extends RecyclerView.ViewHolder {
+        ProgressBar itemLoadingProgressBar;
+
+        public LoadingViewHolder(View itemView) {
+            super(itemView);
+            itemLoadingProgressBar = itemView.findViewById(R.id.lazy_loading_bar);
         }
     }
 }

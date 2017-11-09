@@ -1,51 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-   <FrameLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:background="@color/colorAccent">
-        <android.support.v7.widget.RecyclerView
 
-        android:layout_height="match_parent"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:id="@+id/display_list"
-        />
-       <ProgressBar
-           android:id="@+id/display_progressbar"
-           android:layout_width="50dp"
-           android:layout_height="50dp"
-           android:layout_gravity="center"
-           android:background="#00000000"
-           android:visibility="visible" />
-   </FrameLayout>
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/result_frame"
-        android:visibility="invisible"
-        android:background="@color/colorAccent"
-        >
-    <android.support.v7.widget.RecyclerView
+        android:layout_height="match_parent">
 
-        android:layout_height="match_parent"
-        android:layout_width="match_parent"
-        android:id="@+id/result_list"
-        android:visibility="visible"
-        />
-        <ProgressBar
-            android:id="@+id/result_progressbar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_gravity="center"
-            android:background="#00000000"
-            android:visibility="invisible" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ecece8">
+
+            <android.support.v7.widget.RecyclerView
+
+                android:id="@+id/display_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ProgressBar
+                android:id="@+id/display_progressbar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="#00000000"
+                android:visibility="visible" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/result_frame"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ecece8"
+            android:visibility="invisible">
+
+            <android.support.v7.widget.RecyclerView
+
+                android:id="@+id/result_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible" />
+
+            <ProgressBar
+                android:id="@+id/result_progressbar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="#00000000"
+                android:visibility="invisible" />
+        </FrameLayout>
+
     </FrameLayout>
 
-</FrameLayout>
