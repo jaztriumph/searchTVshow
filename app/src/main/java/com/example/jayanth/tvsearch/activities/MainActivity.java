@@ -3,6 +3,7 @@ package com.example.jayanth.tvsearch.activities;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBar;
@@ -33,6 +34,8 @@ import com.example.jayanth.tvsearch.models.Movie;
 import com.example.jayanth.tvsearch.networking.ApiClient;
 import com.example.jayanth.tvsearch.networking.ApiInterface;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewDisplay;
     private RecyclerView recyclerViewResult;
     private Movie movieInfo;
-    Movie loadMovie=null;
+    Movie loadMovie = null;
     private ListAdapter recycleAdapter;
     private ApiInterface apiInterface;
     private LinearLayoutManager layoutManagerDisplay;
@@ -52,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar progressBarDisplay;
     ProgressBar progressBarResult;
     FrameLayout frameLayoutResult;
+    Context context;
+    Button reload;
+    TextView typeSearch;
 
 //    private EditText searchEditText;
 //    private Button searchButton;
@@ -59,8 +65,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        context = this;
+        reload = findViewById(R.id.reload_button);
         frameLayoutResult = findViewById(R.id.result_frame);
+        typeSearch = findViewById(R.id.type_search);
         progressBarDisplay = findViewById(R.id.display_progressbar);
         progressBarResult = findViewById(R.id.result_progressbar);
         recyclerViewResult = findViewById(R.id.result_list);
@@ -72,24 +82,22 @@ public class MainActivity extends AppCompatActivity {
         recyclerViewResult.setHasFixedSize(true);
         recyclerViewDisplay.setHasFixedSize(true);
         apiInterface = ApiClient.getRetrofit().create(ApiInterface.class);
-        loadData("One", recyclerViewDisplay,true,1,"movie");
-
+        loadData("One", recyclerViewDisplay, true, 1, "movie");
     }
 
     public void loadData(final String query, final RecyclerView recyclerView, final boolean onload, int page, final String type) {
-        Call<Movie> call=null;
-        if(type.equals("tv")) {
+        Call<Movie> call = null;
+        if (type.equals("tv")) {
             call = apiInterface.getTv(query, page);
-        }else
-        {
-            call=apiInterface.getTv(query,page);
+        } else {
+            call = apiInterface.getPopularTv(page);
         }
         call.enqueue(new Callback<Movie>() {
             @Override
             public void onResponse(Call<Movie> call, Response<Movie> response) {
                 movieInfo = response.body();
-                loadMovie=movieInfo;
-                if(onload) {
+                loadMovie = movieInfo;
+                if (onload) {
                     if (movieInfo != null) {
                         progressBarDisplay.setVisibility(View.GONE);
                         progressBarResult.setVisibility(View.INVISIBLE);
@@ -99,25 +107,25 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onLoadMore() {
                                 recycleAdapter.pageNo++;
-                                if(recycleAdapter.pageNo<recycleAdapter.TOTAL_PAGES) {
-                                    Toast.makeText(getApplicationContext(),String.valueOf(recycleAdapter.pageNo), Toast.LENGTH_SHORT).show();
+                                if (recycleAdapter.pageNo < recycleAdapter.TOTAL_PAGES) {
+//                                    Toast.makeText(getApplicationContext(), String.valueOf(recycleAdapter.pageNo), Toast.LENGTH_SHORT).show();
 
                                     recycleAdapter.results.add(null);
                                     recycleAdapter.notifyItemInserted(recycleAdapter.results.size() - 1);
 
-                                new Handler().postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        loadData(query, recyclerView, false,recycleAdapter.pageNo,type);
-                                        recycleAdapter.results.remove(recycleAdapter.results.size() - 1);
-                                        if (loadMovie != null) {
-                                            recycleAdapter.results.addAll(loadMovie.getResults());
-                                            recycleAdapter.notifyDataSetChanged();
-                                            recycleAdapter.setLoaded();
+                                    new Handler().postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            loadData(query, recyclerView, false, recycleAdapter.pageNo, type);
+                                            recycleAdapter.results.remove(recycleAdapter.results.size() - 1);
+                                            if (loadMovie != null) {
+                                                recycleAdapter.results.addAll(loadMovie.getResults());
+                                                recycleAdapter.notifyDataSetChanged();
+                                                recycleAdapter.setLoaded();
 
+                                            }
                                         }
-                                    }
-                                },0);
+                                    }, 0);
 
                                 }
 
@@ -129,8 +137,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Movie> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "Failure", Toast.LENGTH_SHORT).show();
+                progressBarDisplay.setVisibility(View.INVISIBLE);
+                progressBarResult.setVisibility(View.INVISIBLE);
+                reload.setVisibility(View.VISIBLE);
+                Toast.makeText(getApplicationContext(), "NO internet connectivity", Toast.LENGTH_LONG).show();
             }
+
         });
     }
 
@@ -162,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
 //                    recyclerViewResult.setVisibility(View.VISIBLE);
                     frameLayoutResult.setVisibility(View.VISIBLE);
                     progressBarResult.setVisibility(View.VISIBLE);
-                    loadData(query, recyclerViewResult,true,1,"tv");
+                    typeSearch.setText("Search results...");
+                    loadData(query, recyclerViewResult, true, 1, "tv");
                 }
 
 
@@ -184,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
                 frameLayoutResult.setVisibility(View.INVISIBLE);
+                typeSearch.setText("Top shows");
 //                recyclerViewResult.setVisibility(View.INVISIBLE);
 
                 return true;
@@ -191,4 +205,12 @@ public class MainActivity extends AppCompatActivity {
         });
         return true;
     }
+
+    public void reload(View view) {
+        reload.setVisibility(View.INVISIBLE);
+        loadData("One", recyclerViewDisplay, true, 1, "movie");
+
+    }
+
+
 }

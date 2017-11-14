@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/type_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="serif-monospace"
+        android:padding="16dp"
+        android:text="Top shows"
+        android:textSize="20sp" />
+
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -49,5 +64,16 @@
                 android:visibility="invisible" />
         </FrameLayout>
 
-    </FrameLayout>
+        <Button
+            android:id="@+id/reload_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/colorAccent"
+            android:onClick="reload"
+            android:padding="16dp"
+            android:text="reload"
+            android:visibility="invisible" />
 
+    </FrameLayout>
+</LinearLayout>

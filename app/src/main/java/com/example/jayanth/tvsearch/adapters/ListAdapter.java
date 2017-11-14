@@ -2,6 +2,7 @@ package com.example.jayanth.tvsearch.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.jayanth.tvsearch.R;
+import com.example.jayanth.tvsearch.activities.ListDisplay;
+import com.example.jayanth.tvsearch.activities.MainActivity;
 import com.example.jayanth.tvsearch.models.Movie;
 import com.example.jayanth.tvsearch.models.Result;
 import com.squareup.picasso.Callback;
@@ -33,12 +36,12 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     String BASE_IMG_URL = "http://image.tmdb.org/t/p/w185/";
     private final int VIEW_TYPE_ITEM = 0;
     private final int VIEW_TYPE_LOADING = 1;
-    public int pageNo=1;
+    public int pageNo = 1;
     public final int TOTAL_PAGES;
-    String imageUrl;
-    Movie movieInfo = null;
+    private String imageUrl;
+    private Movie movieInfo = null;
     public List<Result> results = null;
-    Context context = null;
+    private Context context = null;
     private OnLoadMoreListener onLoadMoreListener;
     private boolean isLoading;
     private int visibleThreshold = 5;
@@ -53,10 +56,11 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void onLoadMore();
     }
 
+
     public ListAdapter(final RecyclerView recyclerView, Movie movieInfo, Context context) {
         this.movieInfo = movieInfo;
         results = movieInfo.getResults();
-        TOTAL_PAGES=movieInfo.getTotalPages();
+        TOTAL_PAGES = movieInfo.getTotalPages();
         this.context = context;
         final LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -84,7 +88,8 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_ITEM) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_row, parent, false);
-            return new ListViewHolder(view);
+            ListViewHolder holder = new ListViewHolder(view);
+            return holder;
         } else if (viewType == VIEW_TYPE_LOADING) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading, parent, false);
             return new LoadingViewHolder(view);
@@ -93,9 +98,20 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        if(holder instanceof ListViewHolder) {
-            final ListViewHolder listViewholder=(ListViewHolder)holder;
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+        if (holder instanceof ListViewHolder) {
+            final ListViewHolder listViewholder = (ListViewHolder) holder;
+            listViewholder.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent listDetailIntent = new Intent(context, ListDisplay.class);
+                    listDetailIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    listDetailIntent.putExtra("name", results.get(position).getName());
+                    listDetailIntent.putExtra("poster", results.get(position).getPosterPath());
+
+                    context.startActivity(listDetailIntent);
+                }
+            });
             listViewholder.rowTextView.setText(results.get(position).getName());
             if (results.get(position).getPosterPath() != null) {
                 imageUrl = BASE_IMG_URL + results.get(position).getPosterPath();
@@ -117,7 +133,7 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 //            Toast.makeText(context,results.get(position).getName(),Toast.LENGTH_SHORT).show();
             }
-        }else if (holder instanceof LoadingViewHolder) {
+        } else if (holder instanceof LoadingViewHolder) {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
             loadingViewHolder.itemLoadingProgressBar.setIndeterminate(true);
         }
@@ -128,6 +144,7 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemCount() {
         return results.size();
     }
+
     public void setLoaded() {
         isLoading = false;
     }
@@ -137,14 +154,20 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView rowTextView;
         ImageView rowImageView;
         ProgressBar imgProgressBar;
+        View view;
 
         public ListViewHolder(View itemView) {
             super(itemView);
+            view = itemView;
             rowTextView = itemView.findViewById(R.id.row_textView);
             rowImageView = itemView.findViewById(R.id.row_imageView);
             imgProgressBar = itemView.findViewById(R.id.img_progressBar);
 //            imgProgressBar.setVisibility(View.VISIBLE);
+//            itemView.setOnClickListener(this);
+
         }
+
+
     }
 
     class LoadingViewHolder extends RecyclerView.ViewHolder {
