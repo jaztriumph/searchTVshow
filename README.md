@@ -8,6 +8,12 @@ search your favorite TV shows and get inforamtion about them.
 * [Picasso](https://maven.apache.org/) - Image processor used
 * [TMDb](https://www.themoviedb.org/) - Api from which information in loaded
 
+
+## Screen shots
+
+<img src="https://github.com/jaztriumph/searchTVshow/blob/master/screenshots/pic1.png" width="40%" height="40%" />          <img src="https://github.com/jaztriumph/searchTVshow/blob/master/screenshots/pic2.png" width="40%" height="40%" />
+
+
 ### Updates to come
 
 * Information about the latest episodes of your favourite shows.
