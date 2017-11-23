@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     if (movieInfo != null) {
                         progressBarDisplay.setVisibility(View.GONE);
                         progressBarResult.setVisibility(View.INVISIBLE);
-                        recycleAdapter = new ListAdapter(recyclerView, movieInfo, getApplicationContext());
+                        recycleAdapter = new ListAdapter(recyclerView, movieInfo, context);
                         recyclerView.setAdapter(recycleAdapter);
                         recycleAdapter.setOnLoadMoreListener(new ListAdapter.OnLoadMoreListener() {
                             @Override
@@ -212,5 +212,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

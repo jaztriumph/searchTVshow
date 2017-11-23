@@ -105,7 +105,7 @@ public class ListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 @Override
                 public void onClick(View view) {
                     Intent listDetailIntent = new Intent(context, ListDisplay.class);
-                    listDetailIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    listDetailIntent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
                     listDetailIntent.putExtra("name", results.get(position).getName());
                     listDetailIntent.putExtra("poster", results.get(position).getPosterPath());
 

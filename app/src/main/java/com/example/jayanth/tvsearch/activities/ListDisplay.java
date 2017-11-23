@@ -56,4 +56,5 @@ public class ListDisplay extends AppCompatActivity {
         detailTextView.setText(name);
     }
 
+
 }
